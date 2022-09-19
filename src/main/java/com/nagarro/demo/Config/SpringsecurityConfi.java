@@ -20,7 +20,7 @@ protected void configure(HttpSecurity h) throws Exception
 {
 	h.httpBasic().and().authorizeRequests().antMatchers("/view/admin/**").hasRole("admin").antMatchers("/view/user/**").hasRole("user")
 	.and().formLogin();
-	h.csrf().disable();
+	
 	h.authorizeRequests().antMatchers("/h2-console/**").permitAll()
     .and().csrf().ignoringAntMatchers("/h2-console/**")
     .and().headers().frameOptions().sameOrigin();

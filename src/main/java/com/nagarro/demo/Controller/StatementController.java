@@ -35,7 +35,6 @@ public class StatementController {
 	
 	  @GetMapping("/view/admin/statements") 
 	  public List<Statement> fetchStatements(@RequestBody StatementRequest statementRequest) {
-		  
 		   log.info("Request Received for admin view statements for account id : {}", statementRequest.getAccountId());
 	       return viewStatementService.fetchStatementsForAdmin(statementRequest); 
 	  }

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 
 import com.nagarro.demo.Entity.Statement;
+import com.nagarro.demo.Exception.ResourceNotFoundException;
 import com.nagarro.demo.Repositories.BankRepository;
 import com.nagarro.demo.requests.AmountRange;
 import com.nagarro.demo.requests.DateRange;
@@ -26,14 +27,20 @@ public class ViewStatementService {
 	
 	
 		public List<Statement> getStatementUser(int account_id){
-			try {
-			return statementRepository.getStatementForUser(account_id);
-			}catch(RuntimeException ex) {
-				log.error("Error Occurred while fetching statements for user account id: {}", account_id);
-				throw new RuntimeException(ex.getMessage());
+			
+				List<Statement> response=null;
+				
+				response=statementRepository.getStatementForUser(account_id);
+				if(response.isEmpty())
+				{
+					throw  new ResourceNotFoundException("statement not found for user");
+				}
+				response.stream().forEach(x-> x.setAccount_id(encodeAccountNos(x.getAccount_id())));
+				return response;
 			}
 			
-		}
+			
+		
 
 		public List<Statement> fetchStatementsForAdmin(StatementRequest statementRequest
 				) {
@@ -55,12 +62,30 @@ public class ViewStatementService {
 					statementResponse = statementRepository.getStatementForBoth(amountRange.getFromAmount(),
 							amountRange.getToAmount(),dateRange.getFromDate(),dateRange.getToDate(),statementRequest.getAccountId());
 				}
+				
+				
 			}catch(RuntimeException ex) {
 				log.error("Error Occurred while fetching statements for admin account id: {}", statementRequest
 						.getAccountId());
-				throw new RuntimeException(ex.getMessage());
+				throw new ResourceNotFoundException("statement not found for admin");
 			}
+			statementResponse.stream().forEach(x-> x.setAccount_id(encodeAccountNos(x.getAccount_id())));
 			return statementResponse;
+		}
+		
+		public Integer encodeAccountNos(Integer no) {
+
+		    String number = Integer.toString(no);
+		    String response = "";
+		    for(int i=0;i<number.length();i++) {
+		    	if(i >= number.length()-2) {
+		    		response = response + number.charAt(i);
+		    	}else {
+		    		response = response + "9";
+		    	}
+		    	
+		    }
+		    return Integer.parseInt(response);
 		}
 		
 	}
